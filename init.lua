@@ -102,7 +102,7 @@ vim.g.have_nerd_font = true
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.o.relativenumber = true
+vim.o.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.o.mouse = 'a'
@@ -120,6 +120,13 @@ end)
 
 -- Enable break indent
 vim.o.breakindent = true
+
+-- NOTE: Set indent width to 4 spaces (Neovim defaults to 8, which felt oversized)
+vim.o.tabstop = 4
+vim.o.shiftwidth = 4
+vim.o.softtabstop = 4
+vim.o.expandtab = true
+vim.o.smartindent = true
 
 -- Save undo history
 vim.o.undofile = true
@@ -151,6 +158,12 @@ vim.o.splitbelow = true
 --   and `:help lua-options-guide`
 vim.o.list = true
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+vim.api.nvim_create_autocmd('BufWinEnter', {
+  pattern = vim.fn.expand '~/src/freebsd-14.5' .. '/*',
+  callback = function()
+    vim.wo.list = false
+  end,
+})
 
 -- Preview substitutions live, as you type!
 vim.o.inccommand = 'split'
@@ -462,6 +475,14 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sn', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
+
+      local bsd_sys = vim.fn.expand '~/src/freebsd-14.5/sys'
+      vim.keymap.set('n', '<leader>sb', function()
+        builtin.live_grep { cwd = bsd_sys, prompt_title = 'Grep FreeBSD sys' }
+      end, { desc = '[S]earch [B]SD kernel by grep' })
+      vim.keymap.set('n', '<leader>sB', function()
+        builtin.find_files { cwd = bsd_sys, prompt_title = 'Find FreeBSD sys files' }
+      end, { desc = '[S]earch [B]SD kernel files' })
     end,
   },
 
@@ -674,7 +695,7 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {},
         -- gopls = {},
         pyright = {},
         -- rust_analyzer = {},
@@ -1011,7 +1032,6 @@ require('lazy').setup({
   --
   --
   -- TODO: Make keymappings for neotree
-
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
   --
